@@ -1,2 +1,4 @@
 .idea
-cookie.json
+cookies.json
+.env
+all_files
