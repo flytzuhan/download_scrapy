@@ -2,3 +2,4 @@
 cookies.json
 .env
 all_files
+.DS_Store

@@ -1,6 +1,7 @@
 # coding=utf-8
 from article import login
 from article import articles
+from utils import m3u8_download
 import os
 import configparser
 import json
@@ -23,11 +24,29 @@ def main():
     if not os.path.isfile(os.path.join(out_dir, 'course_list.json')):
         with open(os.path.join(out_dir, 'course_list.json'), 'w') as f:
             f.write(json.dumps(course_list))
-    print(course_list)
+    # print(course_list)
 
     # 循环课程列表获取每个课程的简介，建立目录
     for index, value in course_list.items():
-        print(index, value)
+        if index == '3': # 下载视频
+            m3u8 = m3u8_download.M3u8Download()
+            for item in value['list']:
+                dir_name = item['column_title']
+                # 判断文件目录是否存在
+                if not os.path.isdir(os.path.join(out_dir, dir_name)):
+                    os.makedirs(os.path.join(out_dir, dir_name))
+                # 获取课程的所有内容
+                content = article.get_course_content(item['id'])
+                if not os.path.isfile(os.path.join(out_dir+'/'+dir_name, 'content_list.json')):
+                    with open(os.path.join(out_dir+'/'+dir_name, 'content_list.json'), 'w') as f:
+                        f.write(json.dumps(content))
+
+                # 获取每个章节的详细信息
+                if int(item['id']) in [98]:
+                    for chapter in content:
+                        chapter_content = article.get_chapter_content(chapter['id'])
+                        print(chapter_content)
+                        m3u8.run(chapter_content['video_media_map']['ld']['url'], os.path.join(out_dir, dir_name), chapter_content['article_sharetitle'])
 
 def parse_config():
     """
